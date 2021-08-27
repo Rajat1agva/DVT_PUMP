@@ -22,9 +22,7 @@
 void pwm_init(void);
 void pwm1(void);
 
-bool V1_H = true;
-bool V2_H = true;
-bool v3_H = true;
+
 bool v4_H = true;
 
 int main(void)
@@ -32,12 +30,9 @@ int main(void)
 	_PROTECTED_WRITE (CLKCTRL.OSCHFCTRLA, ((CLKCTRL_FREQSEL_1M_gc)  //Oscillator frequency is 1MHz
 									  |(CLKCTRL_AUTOTUNE_bm)));  // Auto tuning
 	PORTE.DIR |= PIN0_bm; // VALVE 1 
-	//PORTA.DIRSET |= PIN6_bm; // VALVE 2
-	//PORTA.DIR |= PIN2_bm; // VALVE 3
-	//PORTB.DIR |= PIN5_bm; // VALVE 4
-	PORTA.DIR |= PIN3_bm; //VALVE 2
+	PORTA.DIR |= PIN3_bm; //VALVE 4
 	PORTC.DIR |= PIN4_bm; //VALVE 3 
-	PORTC.DIR |= PIN5_bm; // VALVE 4
+	PORTC.DIR |= PIN5_bm; // VALVE 2
 	PORTE.OUTSET |= PIN0_bm;
 	PORTA.OUTCLR |= PIN3_bm;
 	PORTC.PIN5CTRL |= (1<<7);
@@ -51,10 +46,15 @@ int main(void)
 	pwm1();
     /* Replace with your application code */
     while (1) 
-    {PORTA.OUTCLR |=(PIN3_bm);
-	 _delay_ms(30000);
-	 PORTA.OUTSET |=(PIN3_bm);
-	 _delay_ms(30000);
+    {if(v4_H)
+		{
+			_delay_ms(30000);
+			v4_H=false;
+		}
+		PORTA.OUTSET |= (PIN3_bm);
+	 _delay_ms(15000);
+	 PORTA.OUTCLR |=(PIN3_bm);
+	 _delay_ms(45000);
     }
 }
 void pwm_init(void)
@@ -80,7 +80,7 @@ void pwm_init(void)
 }
 void pwm1(void)
 {
-	TCA1.SINGLE.PER = 43944; // set time period 45 seconds
+	TCA1.SINGLE.PER = 58593; // set time period 60 seconds
 	TCA1.SINGLE.CTRLA |= 0x0f; //Enable time with clock div 1024
 	TCA1.SINGLE.CTRLB |= 0x33; //selects operating mode pwm and enable 
 	TCA1.SINGLE.CMP0 = 14647;  // 15 seconds
