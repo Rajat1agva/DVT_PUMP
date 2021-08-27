@@ -20,6 +20,7 @@
 
 
 void pwm_init(void);
+void pwm1(void);
 
 bool V1_H = true;
 bool V2_H = true;
@@ -32,16 +33,21 @@ int main(void)
 									  |(CLKCTRL_AUTOTUNE_bm)));  // Auto tuning
 	PORTE.DIR |= PIN0_bm; // VALVE 1 
 	//PORTA.DIRSET |= PIN6_bm; // VALVE 2
-	PORTA.DIR |= PIN2_bm; // VALVE 3
-	PORTB.DIR |= PIN5_bm; // VALVE 4
+	//PORTA.DIR |= PIN2_bm; // VALVE 3
+	//PORTB.DIR |= PIN5_bm; // VALVE 4
 	PORTA.DIR |= PIN3_bm; //VALVE 2
+	PORTC.DIR |= PIN4_bm; //VALVE 3 
+	PORTC.DIR |= PIN5_bm; // VALVE 4
 	PORTE.OUTSET |= PIN0_bm;
 	PORTA.OUTCLR |= PIN3_bm;
     PORTMUX.TCAROUTEA |= 0x4;
+	PORTMUX.TCAROUTEA |= (1<<3); //SET PC4 AND PC5 OUTPUT FOR WO AND W1
 	//PORTA.OUTSET |= (PIN3_bm);
  //CLKCTRL.MCLKCTRLB |= 0x04;
 //CLKCTRL.MCLKCTRLA |= 0x2;
+    
 	pwm_init();
+	pwm1();
     /* Replace with your application code */
     while (1) 
     {PORTA.OUTCLR |=(PIN3_bm);
@@ -54,7 +60,7 @@ void pwm_init(void)
 {
 	TCA0.SINGLE.PER = 29295;
   //  TCA0.SINGLE.CNT = 0;
-	TCA0.SINGLE.INTCTRL |= (1<<0) ;
+	//TCA0.SINGLE.INTCTRL |= (1<<0) ;
 
 	TCA0.SINGLE.CTRLA  |= 0x0f;// set clock divided by 1024
     
@@ -70,4 +76,14 @@ void pwm_init(void)
 	
 	sei();
 
+}
+void pwm1(void)
+{
+	TCA1.SINGLE.PER = 43944; // set time period 45 seconds
+	TCA1.SINGLE.CTRLA |= 0x0f; //Enable time with clock div 1024
+	TCA1.SINGLE.CTRLB |= 0x33; //selects operating mode pwm and enable 
+	TCA1.SINGLE.CMP0 = 14647;  // 15 seconds
+	TCA1.SINGLE.CMP1 = 29295;  // 30 seconds
+	 
+	
 }
