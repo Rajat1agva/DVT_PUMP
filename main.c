@@ -25,8 +25,8 @@ void TCB_TIMER_init(void);
 bool v4_H = true;
 uint8_t VALVE1_TIMER = 0;
 uint8_t VALVE2_TIMER = 0;
-bool V1H = true;
-bool V1L = false;
+uint8_t VALVE4_TIMER = 0;
+bool V4_30sec_flag = true;
 int main(void)
 {
    	
@@ -50,8 +50,8 @@ int main(void)
     /* Replace with your application code */
     while (1) 
     {
-	USART1_sendInt(TCB0.CNT);
-	//_delay_ms(100);
+	USART1_sendFloat(Pressure_read(),1);
+    _delay_ms(100);
     }
 }
 void pwm_init(void)
@@ -144,7 +144,34 @@ ISR(TCA1_OVF_vect)
 TCA1.SINGLE.INTFLAGS |= (1<<0);	
 }
 ISR(TCB0_INT_vect)
-{
-	PORTE.OUT ^= (1<<1);
+{   VALVE4_TIMER = VALVE4_TIMER+1;
+	if((VALVE4_TIMER == 29)&&(V4_30sec_flag))
+	{
+		V4_30sec_flag = false;
+	    VALVE4_TIMER = 0;
+	}
+	if(V4_30sec_flag)
+	{ 
+	}
+	else
+	{
+		if(VALVE4_TIMER <= 59)
+		{   
+			if(VALVE4_TIMER <= 15)
+			{  PORTE.OUT |= (1<<1);
+				//SET HIGH VALVE 3 FOR 5 SECONDS
+			}
+			else
+			{
+				PORTE.OUT &=~ (1<<1); //LOw FOR 25 seconds
+				
+			}
+		}
+		else
+		{ 
+			VALVE4_TIMER = 0;
+			
+		}
+	}
     TCB0.INTFLAGS |= (1<<0);
 }
