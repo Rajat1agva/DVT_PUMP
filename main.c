@@ -145,10 +145,10 @@ TCA1.SINGLE.INTFLAGS |= (1<<0);
 }
 ISR(TCB0_INT_vect)
 {   VALVE4_TIMER = VALVE4_TIMER+1;
-	if((VALVE4_TIMER == 29)&&(V4_30sec_flag))
+	if((VALVE4_TIMER == 30)&&(V4_30sec_flag))
 	{
 		V4_30sec_flag = false;
-	    VALVE4_TIMER = 0;
+	    VALVE4_TIMER = 1;
 	}
 	if(V4_30sec_flag)
 	{ 
