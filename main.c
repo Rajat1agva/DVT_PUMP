@@ -20,7 +20,7 @@
 
 void pwm_init(void);
 void pwm1(void);
-//void TCB_TIMER_init(void);
+void TCB_TIMER_init(void);
 
 bool v4_H = true;
 uint8_t VALVE1_TIMER = 0;
@@ -33,7 +33,7 @@ int main(void)
 	PORTE.DIR |= PIN0_bm; // VALVE 1 
 	PORTC.DIR |= PIN4_bm; //VALVE 3 
 	PORTC.DIR |= PIN5_bm; // VALVE 2
-	
+	PORTE.DIR |= PIN1_bm; //VALVE 4
 	//PORTE.OUTSET |= PIN0_bm;
 	//PORTC.PIN5CTRL |= (1<<7);
   //  PORTMUX.TCAROUTEA |= 0x4;
@@ -44,13 +44,14 @@ int main(void)
    USART1_init(9600);
 	pwm_init();
 	pwm1();
+	TCB_TIMER_init();
 	Pressure_init();
 	//TCB_TIMER_init();
     /* Replace with your application code */
     while (1) 
     {
-	USART1_sendInt(VALVE2_TIMER);
-	_delay_ms(100);
+	USART1_sendInt(TCB0.CNT);
+	//_delay_ms(100);
     }
 }
 void pwm_init(void)
@@ -84,6 +85,12 @@ void pwm1(void)
     //	TCA1.SINGLE.CMP1 = 29295;  // 30 seconds
 	 
 	
+}
+void TCB_TIMER_init(void)
+{
+	TCB0.CCMP = 3906;
+	TCB0.CTRLA |= 0x05;
+	TCB0.INTCTRL |= (1<<0);
 }
 ISR(TCA0_OVF_vect)
 {   VALVE1_TIMER=VALVE1_TIMER+1;
@@ -135,4 +142,9 @@ ISR(TCA1_OVF_vect)
 	
 	
 TCA1.SINGLE.INTFLAGS |= (1<<0);	
+}
+ISR(TCB0_INT_vect)
+{
+	PORTE.OUT ^= (1<<1);
+    TCB0.INTFLAGS |= (1<<0);
 }
